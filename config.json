@@ -1,0 +1,56 @@
+{
+	"images_path":"C:\Users\Kamil\Documents\Dokumenty\Studia\NTwI\Dane",
+	"images_description":"C:\Users\Kamil\Documents\Dokumenty\Studia\NTwI\Dane\images_746_photo_vs_other.xlsx",
+	"algorithms_path":"C:\Users\Kamil\Documents\Dokumenty\Studia\NTwI\Algorytmy",
+	"algorithms": [
+		{
+			"name":"JPEG XR",
+			"path":"JPEG XR\Software\Release",
+			"encode":"jpegxr -c %infile -o %outfile",
+			"decode":"jpegxr %infile -o %outfile",
+			"png_required": false
+		},
+		{
+			"name":"JPEG 2000",
+			"path":"JPEG 2000\JPEG 2000~\jasper-2.0.14\bin\bin",
+			"encode":"jasper -f %infile -F %outfile -T jp2",
+			"decode":"jasper -f %infile -F %outfile -T pnm",
+			"png_required": false
+		},
+		{
+			"name":"JPEG LS",
+			"path":"jpeg_ls_v2.2.tar\jpeg_ls_v2.2",
+			"encode":"Encoder\locoe %infile -o%outfile",
+			"decode":"Decoder\locod %infile -o%outfile",
+			"png_required": false
+		},
+		{
+			"name":"FLIF",
+			"path":"FLIF-0.3\FLIF-0.3\build\MSVC",
+			"encode":"flif --overwrite -e %infile %outfile",
+			"decode":"flif --overwrite -d %infile %outfile",
+			"png_required": false
+		},
+		{
+			"name":"WEBP",
+			"path":"libwebp-1.0.2.tar\libwebp-1.0.2\libwebp-1.0.2\output\release-static\x86\bin",
+			"encode":"cwebp %infile -o %outfile",
+			"decode":"dwebp %infile -o %outfilee",
+			"png_required": true
+		},
+		{
+			"name":"MRP",
+			"path":"mrp-05.tar\mrp-05",
+			"encode":"encmrp %infile %outfile",
+			"decode":"decmrp %infile %outfilee",
+			"png_required": false
+		},
+		{
+			"name":"BPG",
+			"path":"bpg-0.9.8-win64",
+			"encode":"bpgenc %infile -o %outfile",
+			"decode":"bpgdec %infile -o %outfilee",
+			"png_required": true
+		}
+	]
+}
