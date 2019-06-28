@@ -44,7 +44,7 @@ log = {}
 
 for (index, imageDetails) in enumerate( loadImagesDetailsFromDescription() ):
     #dev purpose ONLY -- skip after 5th image
-    if index is 5:
+    if index is 2:
         break
     
     #prepare images
@@ -52,13 +52,11 @@ for (index, imageDetails) in enumerate( loadImagesDetailsFromDescription() ):
     to_grayscale(realImagePath)
     to_png('result.pgm')
 
-    #measure original size [pixels]
-    img_size = Image.open('result.pgm').size
-    initial_img_size = img_size[0] * img_size[1]
-
     for algorithm in config['algorithms']:
         extension = getInfileExtension( algorithm['png_required'] )
-        compressCommand = os.path.join(algorithms_path, algorithm['path'], algorithm['encode']).format( infile='result.{0}'.format(extension), outfile='compressed' )
+        input_file = 'result.{0}'.format(extension)
+        initial_img_size =  os.stat(input_file).st_size
+        compressCommand = os.path.join(algorithms_path, algorithm['path'], algorithm['encode']).format( infile=input_file, outfile='compressed' )
 
         compress_time = countTime(compressCommand, 5)
         compressed_img_size = os.stat('compressed').st_size
@@ -70,14 +68,35 @@ for (index, imageDetails) in enumerate( loadImagesDetailsFromDescription() ):
         algorithmName = str(algorithm['name']).encode('utf-8')
 
         if algorithmName not in log:
-            log[algorithmName] = {}
+            log[algorithmName] = {
+                "photo": {},
+                "other": {}
+            }
         
-        log[algorithmName][currentImageName] = {
-            "initialSize": initial_img_size,
+        photoType = ["other", "photo"][ imageDetails["photo"] ]
+
+        log[algorithmName][photoType][currentImageName] = {
+            "initialSize": initial_img_size, #bytes
             "compressTime": compress_time,
             "decompressTime": decompressTime,
-            "compressedSize": compressed_img_size
+            "compressedSize": compressed_img_size #bytes
         }
 
-#you can mark breakpoint on it :)
-pass
+import xlwt
+report = xlwt.Workbook()
+
+for algorithmName, photoTypes in log.iteritems():
+    currentSheet = report.add_sheet(algorithmName)
+    for index_type, [photoTypeName, images] in enumerate( photoTypes.iteritems() ):
+      for index_image, [imageName, imageDetails] in enumerate( images.iteritems() ):
+          compressionLevel = float(imageDetails['compressedSize']) / float(imageDetails['initialSize'])
+          compressTime = round(imageDetails['compressTime'], 5)
+          decompressTime = round(imageDetails['decompressTime'], 5)
+          currentSheet.write( (index_type + 1) * index_image, 0, imageName)
+          currentSheet.write( (index_type + 1) * index_image, 1, compressTime)
+          currentSheet.write( (index_type + 1) * index_image, 2, decompressTime)
+          currentSheet.write( (index_type + 1) * index_image, 3, imageDetails['compressedSize'])
+          currentSheet.write( (index_type + 1) * index_image, 4, imageDetails['initialSize'])
+          currentSheet.write( (index_type + 1) * index_image, 5, compressionLevel)
+
+report.save('output.xls')
