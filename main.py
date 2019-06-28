@@ -24,6 +24,7 @@ def countTime(command, repeatCount):
         start = time.time()
         subprocess.call(command, shell=True)
         #skip first compression
+        print( time.time() - start )
         if iteration is not 0:
             total_time += time.time() - start
 
@@ -44,9 +45,6 @@ log = {}
 
 for (index, imageDetails) in enumerate( loadImagesDetailsFromDescription() ):
     #dev purpose ONLY -- skip after 5th image
-    if index is 10:
-        break
-    
     #prepare images
     realImagePath = os.path.join(images_path, imageDetails['path'])
     to_grayscale(realImagePath)
@@ -85,18 +83,41 @@ for (index, imageDetails) in enumerate( loadImagesDetailsFromDescription() ):
 import xlwt
 report = xlwt.Workbook()
 
-for algorithmName, photoTypes in log.iteritems():
+for algorithmName, photoTypes in log.items():
+    row = 0
+    lastTableIndex = 3
     currentSheet = report.add_sheet(algorithmName)
-    for index_type, [photoTypeName, images] in enumerate( photoTypes.iteritems() ):
-      for index_image, [imageName, imageDetails] in enumerate( images.iteritems() ):
-          compressionLevel = float(imageDetails['compressedSize']) / float(imageDetails['initialSize'])
+    for photoTypeName, images in photoTypes.items():
+      currentSheet.write( row, 0, photoTypeName )
+      row = row + 1
+      currentSheet.write( row, 0, "Nazwa obrazu" )
+      currentSheet.write( row, 1, "Czas kompresji [s]" )
+      currentSheet.write( row, 2, "Czas dekompresji [s]" )
+      currentSheet.write( row, 3, "Rozmiar przed kompresja [B]" )
+      currentSheet.write( row, 4, "Rozmiar po kompresji [B]" )
+      currentSheet.write( row, 5, "Poziom kompresji wartosci bazowej [%]" )
+      row = row + 1
+      for imageName, imageDetails in images.items():
           compressTime = round(imageDetails['compressTime'], 5)
           decompressTime = round(imageDetails['decompressTime'], 5)
-          currentSheet.write( (index_type * index_image) + index_image, 0, imageName)
-          currentSheet.write( (index_type * index_image) * index_image, 1, compressTime)
-          currentSheet.write( (index_type * index_image) * index_image, 2, decompressTime)
-          currentSheet.write( (index_type * index_image) * index_image, 3, imageDetails['compressedSize'])
-          currentSheet.write( (index_type * index_image) * index_image, 4, imageDetails['initialSize'])
-          currentSheet.write( (index_type * index_image) * index_image, 5, compressionLevel)
+          compressedSize = imageDetails['compressedSize']
+          initialSize = imageDetails['initialSize']
+          compressionLevel = ( float(compressedSize) / float(initialSize) ) * 100
+
+          currentSheet.write( row, 0, imageName )
+          currentSheet.write( row, 1, compressTime )
+          currentSheet.write( row, 2, decompressTime )
+          currentSheet.write( row, 3, initialSize )
+          currentSheet.write( row, 4, compressedSize )
+          currentSheet.write( row, 5, compressionLevel )
+          row = row + 1
+      currentSheet.write( row, 0, "Srednia: " )
+      currentSheet.write( row, 1, xlwt.Formula("SUM(B{0}:B{1})/{2}".format(lastTableIndex, row, row - lastTableIndex + 1)) )
+      currentSheet.write( row, 2, xlwt.Formula("SUM(C{0}:C{1})/{2}".format(lastTableIndex, row, row - lastTableIndex + 1)) )
+      currentSheet.write( row, 3, xlwt.Formula("SUM(D{0}:D{1})/{2}".format(lastTableIndex, row, row - lastTableIndex + 1)) )
+      currentSheet.write( row, 4, xlwt.Formula("SUM(E{0}:E{1})/{2}".format(lastTableIndex, row, row - lastTableIndex + 1)) )
+      currentSheet.write( row, 5, xlwt.Formula("SUM(F{0}:F{1})/{2}".format(lastTableIndex, row, row - lastTableIndex + 1)) )
+      row = row + 1
+      lastTableIndex = row + 3
 
 report.save('output2.xls')
