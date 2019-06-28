@@ -1,0 +1,11 @@
+/algorithms
+/photos
+
+*.pyc
+*.jpg
+*.png
+*.pgm
+*.xlsx
+
+compressed
+decompressed

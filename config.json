@@ -1,7 +1,7 @@
 {
-	"images_path":"C:\\Users\\Kamil\\Documents\\Dokumenty\\Studia\\NTwI\\Dane",
-	"images_description":"C:\\Users\\Kamil\\Documents\\Dokumenty\\Studia\\NTwI\\Dane\\images_746_photo_vs_other.xlsx",
-	"algorithms_path":"C:\\Users\\Kamil\\Documents\\Dokumenty\\Studia\\NTwI\\Algorytmy",
+	"images_dir":"photos",
+	"images_description":"images_746_photo_vs_other.xlsx",
+	"algorithms_dir":"algorithms",
 	"algorithms": [
 		{
 			"name":"JPEG XR",
