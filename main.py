@@ -44,7 +44,7 @@ log = {}
 
 for (index, imageDetails) in enumerate( loadImagesDetailsFromDescription() ):
     #dev purpose ONLY -- skip after 5th image
-    if index is 2:
+    if index is 10:
         break
     
     #prepare images
@@ -92,11 +92,11 @@ for algorithmName, photoTypes in log.iteritems():
           compressionLevel = float(imageDetails['compressedSize']) / float(imageDetails['initialSize'])
           compressTime = round(imageDetails['compressTime'], 5)
           decompressTime = round(imageDetails['decompressTime'], 5)
-          currentSheet.write( (index_type + 1) * index_image, 0, imageName)
-          currentSheet.write( (index_type + 1) * index_image, 1, compressTime)
-          currentSheet.write( (index_type + 1) * index_image, 2, decompressTime)
-          currentSheet.write( (index_type + 1) * index_image, 3, imageDetails['compressedSize'])
-          currentSheet.write( (index_type + 1) * index_image, 4, imageDetails['initialSize'])
-          currentSheet.write( (index_type + 1) * index_image, 5, compressionLevel)
+          currentSheet.write( (index_type * index_image) + index_image, 0, imageName)
+          currentSheet.write( (index_type * index_image) * index_image, 1, compressTime)
+          currentSheet.write( (index_type * index_image) * index_image, 2, decompressTime)
+          currentSheet.write( (index_type * index_image) * index_image, 3, imageDetails['compressedSize'])
+          currentSheet.write( (index_type * index_image) * index_image, 4, imageDetails['initialSize'])
+          currentSheet.write( (index_type * index_image) * index_image, 5, compressionLevel)
 
-report.save('output.xls')
+report.save('output2.xls')
