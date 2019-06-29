@@ -3,7 +3,7 @@ from PIL import Image
 
 def to_grayscale(infile, outfile='result.pgm'):
     im = Image.open(infile)
-    g_im = im.getchannel('G')
+    g_im = im.convert("RGB").getchannel('G')
     g_im.save(outfile,'PPM')
     im.close()
     g_im.close()

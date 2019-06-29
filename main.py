@@ -24,7 +24,7 @@ def countTime(command, repeatCount):
         start = time.time()
         subprocess.call(command, shell=True)
         #skip first compression
-        print( time.time() - start )
+        #print( time.time() - start )
         if iteration is not 0:
             total_time += time.time() - start
 
@@ -42,14 +42,18 @@ images_path = getCurrentDirPathFor( config['images_dir'] )
 algorithms_path = getCurrentDirPathFor( config['algorithms_dir'] )
 
 log = {}
-
+startTime = time.time()
 for (index, imageDetails) in enumerate( loadImagesDetailsFromDescription() ):
     #dev purpose ONLY -- skip after 5th image
-    #prepare images
+    print "-----------------------{0}------------------".format(index)
+    print imageDetails['path']
+    #---------------------------------------
+
+
     realImagePath = os.path.join(images_path, imageDetails['path'])
     to_grayscale(realImagePath)
     to_png('result.pgm')
-
+    
     for algorithm in config['algorithms']:
         extension = getInfileExtension( algorithm['png_required'] )
         input_file = 'result.{0}'.format(extension)
@@ -62,8 +66,8 @@ for (index, imageDetails) in enumerate( loadImagesDetailsFromDescription() ):
         decompressCommand = os.path.join(algorithms_path, algorithm['path'], algorithm['decode']).format(infile='compressed', outfile='decompressed')
         decompressTime = countTime(decompressCommand, 5)
 
-        currentImageName = str(imageDetails['path']).split('\\')[-1]
-        algorithmName = str(algorithm['name']).encode('utf-8')
+        currentImageName = imageDetails['path'].encode('utf-8').split('\\')[-1]
+        algorithmName = algorithm['name'].encode('utf-8')
 
         if algorithmName not in log:
             log[algorithmName] = {
@@ -79,6 +83,8 @@ for (index, imageDetails) in enumerate( loadImagesDetailsFromDescription() ):
             "decompressTime": decompressTime,
             "compressedSize": compressed_img_size #bytes
         }
+
+print "TOTAL TIME: {0} seconds".format(time.time() - startTime)
 
 import xlwt
 report = xlwt.Workbook()
@@ -104,7 +110,7 @@ for algorithmName, photoTypes in log.items():
           initialSize = imageDetails['initialSize']
           compressionLevel = ( float(compressedSize) / float(initialSize) ) * 100
 
-          currentSheet.write( row, 0, imageName )
+          currentSheet.write( row, 0, imageName.decode('utf-8') )
           currentSheet.write( row, 1, compressTime )
           currentSheet.write( row, 2, decompressTime )
           currentSheet.write( row, 3, initialSize )
