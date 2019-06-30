@@ -6,51 +6,58 @@
 		{
 			"name":"JPEG XR",
 			"path":"JPEG_XR\\Software\\Release",
-			"encode":"jpegxr -c {infile} -o {outfile}",
-			"decode":"jpegxr {infile} -o {outfile}",
-			"png_required": false
+			"encode":"jpegxr -c -o {outfile} {infile} ",
+			"decode":"jpegxr -o {outfile}.pgm {infile} ",
+			"png_required": false,
+			"reject_ratio": 0
 		},
 		{
 			"name":"JPEG 2000",
 			"path":"JPEG_2000\\JPEG 2000~\\jasper-2.0.14\\bin\\bin",
 			"encode":"jasper -f {infile} -F {outfile} -T jp2",
 			"decode":"jasper -f {infile} -F {outfile} -T pnm",
-			"png_required": false
+			"png_required": false,
+			"reject_ratio": 0
 		},
 		{
 			"name":"JPEG LS",
 			"path":"jpeg_ls_v2.2.tar\\jpeg_ls_v2.2",
 			"encode":"Encoder\\locoe {infile} -o{outfile}",
 			"decode":"Decoder\\locod {infile} -o{outfile}",
-			"png_required": false
+			"png_required": false,
+			"reject_ratio": 0
 		},
 		{
 			"name":"FLIF",
 			"path":"FLIF-0.3\\FLIF-0.3\\build\\MSVC",
 			"encode":"flif --overwrite -e {infile} {outfile}",
-			"decode":"flif --overwrite -d {infile} {outfile}",
-			"png_required": false
+			"decode":"flif --overwrite -d {infile} {outfile}.pgm",
+			"png_required": false,
+			"reject_ratio": 0.6
 		},
 		{
 			"name":"WEBP",
 			"path":"libwebp-1.0.2.tar\\libwebp-1.0.2\\libwebp-1.0.2\\output\\release-static\\x86\\bin",
 			"encode":"cwebp {infile} -o {outfile}",
 			"decode":"dwebp {infile} -o {outfile}",
-			"png_required": true
+			"png_required": true,
+			"reject_ratio": 0
 		},
 		{
 			"name":"MRP",
 			"path":"mrp-05.tar\\mrp-05",
-			"encode":"encmrp {infile} {outfile}",
+			"encode":"encmrp -M 5 -I 5 {infile} {outfile}",
 			"decode":"decmrp {infile} {outfile}",
-			"png_required": false
+			"png_required": false,
+			"reject_ratio": 0.9
 		},
 		{
 			"name":"BPG",
 			"path":"bpg-0.9.8-win64",
 			"encode":"bpgenc {infile} -o {outfile}",
 			"decode":"bpgdec {infile} -o {outfile}",
-			"png_required": true
+			"png_required": true,
+			"reject_ratio": 0
 		}
 	]
 }

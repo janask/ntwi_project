@@ -1,10 +1,12 @@
 import json
 import xlrd
+import xlwt
 import os
 from PIL import Image
 from image_converter import to_grayscale, to_png
 import subprocess
 import time
+import random
 
 def loadImagesDetailsFromDescription():
     img_desc = xlrd.open_workbook( description_path ).sheet_by_index(0)
@@ -17,18 +19,24 @@ def getCurrentDirPathFor(item):
     currentPath = os.getcwd()
     return os.path.join( currentPath, item)
 
-def countTime(command, repeatCount):
+def countTime(command, repeatCount, controlCode = True):
     total_time = 0
+    failed = 0
 
     for iteration in range(0, repeatCount + 1):
         start = time.time()
-        subprocess.call(command, shell=True)
+        code = subprocess.call(command)
         #skip first compression
         #print( time.time() - start )
         if iteration is not 0:
-            total_time += time.time() - start
-
-    return total_time / repeatCount
+            if code == 0 or not controlCode:
+                total_time += time.time() - start
+            else:
+                failed+=1
+    if failed < repeatCount:
+        return total_time / (repeatCount-failed)
+    else:
+        return -1
 
 def getInfileExtension(png_required):
     return ['pgm', 'png'][png_required]
@@ -45,8 +53,8 @@ log = {}
 startTime = time.time()
 for (index, imageDetails) in enumerate( loadImagesDetailsFromDescription() ):
     #dev purpose ONLY -- skip after 5th image
-    print "-----------------------{0}------------------".format(index)
-    print imageDetails['path']
+    print("-----------------------{0}------------------".format(index))
+    print(imageDetails['path'])
     #---------------------------------------
 
 
@@ -55,6 +63,9 @@ for (index, imageDetails) in enumerate( loadImagesDetailsFromDescription() ):
     to_png('result.pgm')
     
     for algorithm in config['algorithms']:
+        if random.random() < algorithm['reject_ratio']:
+            continue
+        print(algorithm['name'])
         extension = getInfileExtension( algorithm['png_required'] )
         input_file = 'result.{0}'.format(extension)
         initial_img_size =  os.stat(input_file).st_size
@@ -62,12 +73,11 @@ for (index, imageDetails) in enumerate( loadImagesDetailsFromDescription() ):
 
         compress_time = countTime(compressCommand, 5)
         compressed_img_size = os.stat('compressed').st_size
-
         decompressCommand = os.path.join(algorithms_path, algorithm['path'], algorithm['decode']).format(infile='compressed', outfile='decompressed')
-        decompressTime = countTime(decompressCommand, 5)
+        decompressTime = countTime(decompressCommand, 5, False)
 
-        currentImageName = imageDetails['path'].encode('utf-8').split('\\')[-1]
-        algorithmName = algorithm['name'].encode('utf-8')
+        currentImageName = str(imageDetails['path']).split('\\')[-1]
+        algorithmName = str(algorithm['name']).encode('utf-8')
 
         if algorithmName not in log:
             log[algorithmName] = {
@@ -84,9 +94,8 @@ for (index, imageDetails) in enumerate( loadImagesDetailsFromDescription() ):
             "compressedSize": compressed_img_size #bytes
         }
 
-print "TOTAL TIME: {0} seconds".format(time.time() - startTime)
+print("TOTAL TIME: {0} seconds".format(time.time() - startTime))
 
-import xlwt
 report = xlwt.Workbook()
 
 for algorithmName, photoTypes in log.items():
@@ -109,14 +118,15 @@ for algorithmName, photoTypes in log.items():
           compressedSize = imageDetails['compressedSize']
           initialSize = imageDetails['initialSize']
           compressionLevel = ( float(compressedSize) / float(initialSize) ) * 100
-
-          currentSheet.write( row, 0, imageName.decode('utf-8') )
-          currentSheet.write( row, 1, compressTime )
-          currentSheet.write( row, 2, decompressTime )
-          currentSheet.write( row, 3, initialSize )
-          currentSheet.write( row, 4, compressedSize )
-          currentSheet.write( row, 5, compressionLevel )
-          row = row + 1
+  
+          if compressTime >=0 :
+              currentSheet.write( row, 0, imageName )
+              currentSheet.write( row, 1, compressTime )
+              currentSheet.write( row, 2, decompressTime )
+              currentSheet.write( row, 3, initialSize )
+              currentSheet.write( row, 4, compressedSize )
+              currentSheet.write( row, 5, compressionLevel )
+              row = row + 1
       currentSheet.write( row, 0, "Srednia: " )
       currentSheet.write( row, 1, xlwt.Formula("SUM(B{0}:B{1})/{2}".format(lastTableIndex, row, row - lastTableIndex + 1)) )
       currentSheet.write( row, 2, xlwt.Formula("SUM(C{0}:C{1})/{2}".format(lastTableIndex, row, row - lastTableIndex + 1)) )
@@ -126,4 +136,4 @@ for algorithmName, photoTypes in log.items():
       row = row + 1
       lastTableIndex = row + 3
 
-report.save('output2.xls')
+report.save('output.xls')
