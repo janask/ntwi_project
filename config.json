@@ -38,7 +38,7 @@
 		{
 			"name":"WEBP",
 			"path":"libwebp-1.0.2.tar\\libwebp-1.0.2\\libwebp-1.0.2\\output\\release-static\\x86\\bin",
-			"encode":"cwebp {infile} -o {outfile}",
+			"encode":"cwebp -lossless {infile} -o {outfile}",
 			"decode":"dwebp {infile} -o {outfile}",
 			"png_required": true,
 			"reject_ratio": 0
@@ -54,7 +54,7 @@
 		{
 			"name":"BPG",
 			"path":"bpg-0.9.8-win64",
-			"encode":"bpgenc {infile} -o {outfile}",
+			"encode":"bpgenc -lossless {infile} -o {outfile}",
 			"decode":"bpgdec {infile} -o {outfile}",
 			"png_required": true,
 			"reject_ratio": 0

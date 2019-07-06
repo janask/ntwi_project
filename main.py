@@ -68,7 +68,8 @@ for (index, imageDetails) in enumerate( loadImagesDetailsFromDescription() ):
         print(algorithm['name'])
         extension = getInfileExtension( algorithm['png_required'] )
         input_file = 'result.{0}'.format(extension)
-        initial_img_size =  os.stat(input_file).st_size
+        img_size = Image.open('result.pgm').size
+        initial_img_size =  img_size[0]*img_size[1]
         compressCommand = os.path.join(algorithms_path, algorithm['path'], algorithm['encode']).format( infile=input_file, outfile='compressed' )
 
         compress_time = countTime(compressCommand, 5)
@@ -88,7 +89,7 @@ for (index, imageDetails) in enumerate( loadImagesDetailsFromDescription() ):
         photoType = ["other", "photo"][ imageDetails["photo"] ]
 
         log[algorithmName][photoType][currentImageName] = {
-            "initialSize": initial_img_size, #bytes
+            "initialSize": initial_img_size, #pixels
             "compressTime": compress_time,
             "decompressTime": decompressTime,
             "compressedSize": compressed_img_size #bytes
@@ -108,16 +109,16 @@ for algorithmName, photoTypes in log.items():
       currentSheet.write( row, 0, "Nazwa obrazu" )
       currentSheet.write( row, 1, "Czas kompresji [s]" )
       currentSheet.write( row, 2, "Czas dekompresji [s]" )
-      currentSheet.write( row, 3, "Rozmiar przed kompresja [B]" )
+      currentSheet.write( row, 3, "Rozmiar przed kompresja [piksele]" )
       currentSheet.write( row, 4, "Rozmiar po kompresji [B]" )
-      currentSheet.write( row, 5, "Poziom kompresji wartosci bazowej [%]" )
+      currentSheet.write( row, 5, "Poziom kompresji wartosci bazowej [b/piksel]" )
       row = row + 1
       for imageName, imageDetails in images.items():
           compressTime = round(imageDetails['compressTime'], 5)
           decompressTime = round(imageDetails['decompressTime'], 5)
           compressedSize = imageDetails['compressedSize']
           initialSize = imageDetails['initialSize']
-          compressionLevel = ( float(compressedSize) / float(initialSize) ) * 100
+          compressionLevel = 8.0 * float(compressedSize) / float(initialSize)
   
           if compressTime >=0 :
               currentSheet.write( row, 0, imageName )
